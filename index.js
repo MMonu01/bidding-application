@@ -2,6 +2,7 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 
 const { UserRouter } = require("./routes/user-routes");
+const { AuctionRouter } = require("./routes/auction-routes");
 
 const { Connection } = require("./config/db");
 const { CreateDbMiddlware } = require("./model/db-model");
@@ -15,6 +16,7 @@ app.use(cookieParser(process.env.cookie_parser_key));
 app.use(CreateDbMiddlware);
 
 app.use("/users", UserRouter);
+app.use("/items", AuctionRouter);
 
 Connection.connect((err) => {
   if (err) {
