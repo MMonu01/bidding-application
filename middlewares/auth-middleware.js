@@ -28,7 +28,7 @@ const AuthMiddleware = (req, res, next) => {
   if (req.userId) {
     next();
   } else {
-    res.send("session time out please login again");
+    res.status(401).send("session time out please login again");
   }
 };
 
