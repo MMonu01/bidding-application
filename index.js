@@ -1,11 +1,20 @@
 const express = require("express");
+const cookieParser = require("cookie-parser");
+
+const { UserRouter } = require("./routes/user-routes");
 
 const { Connection } = require("./config/db");
+const { CreateDbMiddlware } = require("./model/db-model");
 
 const PORT = 9000;
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser(process.env.cookie_parser_key));
+
+app.use(CreateDbMiddlware);
+
+app.use("/users", UserRouter);
 
 Connection.connect((err) => {
   if (err) {
