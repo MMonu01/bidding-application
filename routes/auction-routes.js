@@ -6,12 +6,15 @@ const upload = multer({ dest: "uploads/" });
 const { Connection } = require("../config/db");
 
 const { AuthMiddleware } = require("../middlewares/auth-middleware");
+
+const { CreateBidsTable } = require("../model/bids-model");
 const { CreateAuctionItemsTable } = require("../model/auction-items-model");
 
 const { GetLiveImageurl } = require("../util/get-live-image-url");
 
 const AuctionRouter = express.Router();
 
+// Auction items route start
 AuctionRouter.get("/", CreateAuctionItemsTable, (req, res, next) => {
   const { page_no } = req.query;
   const items_limit = 10;
@@ -115,5 +118,34 @@ AuctionRouter.delete("/:id", AuthMiddleware, (req, res, next) => {
     }
   });
 });
+
+// Auction items route ends
+
+// Bids route start
+AuctionRouter.get("/:itemId/bids", CreateBidsTable, (req, res, next) => {
+  const { itemId } = req.params;
+
+  Connection.query(`SELECT id,item_id,bid_amount,created_at FROM bids WHERE id = '${itemId}'`, (err, result) => {
+    if (!!err) {
+      return next(err);
+    }
+    res.send(result);
+  });
+});
+
+AuctionRouter.post("/:itemId/bids", CreateBidsTable, AuthMiddleware, (req, res, next) => {
+  const { itemId } = req.params;
+  const userId = req.userId;
+  const { bid_amount } = req.body;
+
+  Connection.query(`INSERT INTO bids (item_id,user_id,bid_amount) VALUES ('${itemId}','${userId}','${bid_amount}') `, (err, result) => {
+    if (!!err) {
+      return next(err);
+    }
+    res.send("Bid accepted successfully");
+  });
+});
+
+// bid route ends
 
 module.exports = { AuctionRouter };
