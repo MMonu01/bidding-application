@@ -27,7 +27,6 @@ app.use(CreateDbMiddlware);
 const io = new Server(httpServer, {
   cors: {
     origin: process.env.FRONTEND_URL,
-    methods: ["GET", "POST"],
   },
 });
 
