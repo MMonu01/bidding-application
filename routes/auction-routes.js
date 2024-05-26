@@ -19,7 +19,21 @@ AuctionRouter.get("/", CreateAuctionItemsTable, (req, res, next) => {
   const { page_no } = req.query;
   const items_limit = 10;
 
-  Connection.query(`SELECT * FROM items LIMIT ${items_limit} OFFSET ${(page_no - 1) * items_limit};`, (err, result) => {
+  const { search, status } = req.query;
+
+  let condition = "WHERE";
+
+  if (!!search) {
+    condition += ` (name LIKE '%${search}%' OR description LIKE '%${search}%') `;
+  }
+
+  if (status === "active") {
+    condition += ` AND end_time > CURRENT_TIMESTAMP `;
+  } else if (status === "ended") {
+    condition += ` AND end_time < CURRENT_TIMESTAMP `;
+  }
+
+  Connection.query(`SELECT * FROM items ${condition.length > 5 ? condition : ""} LIMIT ${items_limit} OFFSET ${(page_no - 1) * items_limit};`, (err, result) => {
     if (!!err) {
       console.log("err", err);
       return next(err);
